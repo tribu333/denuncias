@@ -1,4 +1,4 @@
-package com.registro.denuncias.config;
+/* package com.registro.denuncias.config;
 
 import com.registro.denuncias.repository.UsuarioRepository;
 import com.registro.denuncias.service.CustomUserDetailsService;
@@ -70,4 +70,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
+} */
