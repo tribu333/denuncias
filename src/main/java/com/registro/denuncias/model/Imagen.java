@@ -1,0 +1,70 @@
+package com.registro.denuncias.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "imagen")
+@Getter // Genera todos los getters
+@Setter // Genera todos los setters
+@NoArgsConstructor // Genera constructor sin argumentos
+@AllArgsConstructor // Genera constructor con todos los argumentos
+@ToString // Genera el método toString
+@Builder // Permite usar el patrón Builder
+public class Imagen {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idImagen;
+
+    @Column(name = "nombre_archivo", nullable = false, unique = true)
+    private String nombreArchivo; // UUID generado
+
+    @Column(name = "nombre_original", nullable = false)
+    private String nombreOriginal; // Nombre original del archivo subido
+
+    @Column(name = "ruta_completa", nullable = false)
+    private String rutaCompleta;
+
+    @Column(name = "mime_type", nullable = false)
+    private String mimeType; // image/png, image/jpeg, etc.
+
+    @Column(name = "tamanio_bytes")
+    private Long tamanioBytes;
+
+    @Column(name = "fecha_subida")
+    @CreationTimestamp
+    private LocalDateTime fechaSubida;
+
+    // Relación muchos a uno: muchas imágenes pertenecen a un empleado
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_denuncia", nullable = false)
+    @ToString.Exclude // Excluye de toString para evitar recursión
+    private Complaint denuncia;
+
+    // ========== MÉTODOS ÚTILES ==========
+    
+    public String getTamanioFormateado() {
+        if (tamanioBytes == null) return "0 KB";
+        
+        double kb = tamanioBytes / 1024.0;
+        if (kb < 1024) {
+            return String.format("%.2f KB", kb);
+        }
+        double mb = kb / 1024.0;
+        return String.format("%.2f MB", mb);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaSubida == null) {
+            fechaSubida = LocalDateTime.now();
+        }
+    }
+}

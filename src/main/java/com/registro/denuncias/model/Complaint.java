@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 /* import java.util.ArrayList;
 import java.util.List; */
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "complaints")
@@ -57,17 +59,6 @@ public class Complaint {
     @Column(name = "worker_position")
     private String workerPosition;
 
-    // Status tracking
-/*     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    @Builder.Default
-    private ComplaintStatus status = ComplaintStatus.PENDING; */
-
-/*     @Enumerated(EnumType.STRING)
-    @Column(name = "priority")
-    @Builder.Default
-    private ComplaintPriority priority = ComplaintPriority.MEDIUM; */
-
     // Timestamps
     @CreationTimestamp
     @Column(name = "submitted_at", updatable = false)
@@ -76,24 +67,21 @@ public class Complaint {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // Relationships
-    /* @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
+    // RELACIÓN CON IMÁGENES - AÑADIDO
+    @OneToMany(mappedBy = "denuncia", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<StatusUpdate> statusUpdates = new ArrayList<>();
-
-    // Helper methods
-    public void addStatusUpdate(StatusUpdate statusUpdate) {
-        statusUpdates.add(statusUpdate);
-        statusUpdate.setComplaint(this);
+    @ToString.Exclude
+    private List<Imagen> imagenes = new ArrayList<>();
+    // Métodos para manejar la relación
+    public void addImagen(Imagen imagen) {
+        imagenes.add(imagen);
+        imagen.setDenuncia(this);
     }
-
-    public void removeStatusUpdate(StatusUpdate statusUpdate) {
-        statusUpdates.remove(statusUpdate);
-        statusUpdate.setComplaint(null);
-    } */
-
-    // Generate complaint code (optional, can be done in service layer)
+    
+    public void removeImagen(Imagen imagen) {
+        imagenes.remove(imagen);
+        imagen.setDenuncia(null);
+    }
     @PrePersist
     public void generateComplaintCode() {
         if (this.complaintCode == null) {
