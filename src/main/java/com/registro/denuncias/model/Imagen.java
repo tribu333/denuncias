@@ -21,7 +21,7 @@ public class Imagen {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idImagen;
+    private Long idImagen;
 
     @Column(name = "nombre_archivo", nullable = false, unique = true)
     private String nombreArchivo; // UUID generado

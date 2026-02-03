@@ -37,7 +37,7 @@ public class Usuario implements UserDetails {
     @Column(name = "nombre_completo", nullable = false, length = 100)
     private String nombreCompleto;
 
-    @Column(name = "rol", nullable = false, length = 20)
+    //@Column(name = "rol", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private RolUsuario rol;
 

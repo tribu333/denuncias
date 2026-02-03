@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ComplaintRepository extends JpaRepository<Complaint, String> {
+public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     
     Optional<Complaint> findByComplaintCode(String complaintCode);
     
