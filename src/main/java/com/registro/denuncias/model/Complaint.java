@@ -26,7 +26,7 @@ public class Complaint {
     @Id
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private Long id;
 
     @Column(name = "complaint_code", unique = true, nullable = false)
     private String complaintCode;

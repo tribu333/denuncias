@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ComplaintResponseDTO {
     
-    private String id;
+    private Long id;
     private String complaintCode;
     private String complaintType;
     private LocalDate incidentDate;
