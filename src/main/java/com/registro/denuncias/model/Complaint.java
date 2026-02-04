@@ -66,19 +66,19 @@ public class Complaint {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     // RELACIÓN CON IMÁGENES - AÑADIDO
-    @OneToMany(mappedBy = "denuncia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
     private List<Imagen> imagenes = new ArrayList<>();
     // Métodos para manejar la relación
     public void addImagen(Imagen imagen) {
         imagenes.add(imagen);
-        imagen.setDenuncia(this);
+        imagen.setComplaint(this);
     }
     
     public void removeImagen(Imagen imagen) {
         imagenes.remove(imagen);
-        imagen.setDenuncia(null);
+        imagen.setComplaint(null);
     }
     @PrePersist
     public void generateComplaintCode() {

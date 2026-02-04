@@ -9,62 +9,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class ImagenService {
+import com.registro.denuncias.dto.image.ImagenResponseDTO;
+import com.registro.denuncias.model.Imagen;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ImagenService {
     
-    private final ImagenRepository imagenRepository;
-    private final ComplaintRepository complaintRepository;
-    private final Path rootLocation = Paths.get("uploads");
+    // Operaciones CRUD
+    ImagenResponseDTO subirImagen(MultipartFile file, Long idComplaint);
+    Optional<ImagenResponseDTO> findById(Long id);
+    List<ImagenResponseDTO> getImagenesPorDenuncia(Long idComplaint);
+    void deleteById(Long id);
     
-    public Imagen guardarImagen(MultipartFile file, Long denunciaId) throws IOException {
-        // Verificar que la denuncia existe
-        Complaint denuncia = complaintRepository.findById(denunciaId)
-                .orElseThrow(() -> new RuntimeException("Denuncia no encontrada"));
-        
-        // Crear nombre único para el archivo
-        String nombreOriginal = file.getOriginalFilename();
-        String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
-        String nombreArchivo = UUID.randomUUID().toString() + extension;
-        
-        // Crear directorio si no existe
-        if (!Files.exists(rootLocation)) {
-            Files.createDirectories(rootLocation);
-        }
-        
-        // Guardar archivo en disco
-        Path destinationFile = rootLocation.resolve(nombreArchivo);
-        Files.copy(file.getInputStream(), destinationFile);
-        
-        // Crear y guardar entidad Imagen
-        Imagen imagen = Imagen.builder()
-                .nombreArchivo(nombreArchivo)
-                .nombreOriginal(nombreOriginal)
-                .rutaCompleta(destinationFile.toString())
-                .mimeType(file.getContentType())
-                .tamanioBytes(file.getSize())
-                .denuncia(denuncia)
-                .build();
-        
-        Imagen savedImagen = imagenRepository.save(imagen);
-        
-        // Actualizar relación en la denuncia
-        denuncia.addImagen(savedImagen);
-        complaintRepository.save(denuncia);
-        
-        log.info("Imagen guardada: {} para denuncia: {}", nombreArchivo, denunciaId);
-        return savedImagen;
-    }
-    
-    public List<Imagen> getImagenesPorDenuncia(Long denunciaId) {
-        return imagenRepository.findByDenunciaId(denunciaId);
-    }
+    // Operaciones específicas
+    Imagen findEntityById(Long id);
+    Imagen findEntityByNombreArchivo(String nombreArchivo);
+    long contarImagenesPorComplaint(Long idComplaint);
+    void eliminarTodasImagenesComplaint(Long idComplaint);
+    // Subir múltiples imágenes para un complaint
+    List<ImagenResponseDTO> subirImagenesMasivas(MultipartFile[] files, Long idComplaint);
 }

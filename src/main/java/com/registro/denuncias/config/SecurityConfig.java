@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers( "/api/imagenes/descargar/**").permitAll()
                 // Todas las demás rutas requieren autenticación
                 .anyRequest().authenticated()
             )

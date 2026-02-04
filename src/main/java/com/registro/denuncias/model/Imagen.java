@@ -42,11 +42,11 @@ public class Imagen {
     @CreationTimestamp
     private LocalDateTime fechaSubida;
 
-    // Relación muchos a uno: muchas imágenes pertenecen a un empleado
+    // Relación muchos a uno: muchas imágenes pertenecen a un complaint
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_denuncia", nullable = false)
     @ToString.Exclude // Excluye de toString para evitar recursión
-    private Complaint denuncia;
+    private Complaint complaint;
 
     // ========== MÉTODOS ÚTILES ==========
     
