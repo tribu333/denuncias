@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
-//import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.info.Contact;
 @Configuration
 public class OpenApiConfig{
@@ -14,19 +14,19 @@ public class OpenApiConfig{
     public OpenAPI customOpenApi(){
         return new OpenAPI()
             .info( new Info()
-                .title("Attendance Control Api")
+                .title("Control Api")
                 .version("1.0")
-                .description("Api for Attendance control")
-                .contact( new Contact().name("Alfredo Lazaro Poma").email("micorreo@example.com").url(""))
+                .description("Api for ")
+                .contact( new Contact().name("Alfred Lazar").email("micorreo@example.com").url(""))
             )
             .addSecurityItem(new SecurityRequirement()
-                .addList("bearerAuth"));
-            /* .components(new io.swagger.v3.oas.models.Components()
+                .addList("bearerAuth"))
+            .components(new io.swagger.v3.oas.models.Components()
                 .addSecuritySchemes("bearerAuth",
                     new SecurityScheme()
                         .name("bearerAuth")
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
-                        .bearerFormat("JWT"))); */
+                        .bearerFormat("JWT")));
     }
 }
