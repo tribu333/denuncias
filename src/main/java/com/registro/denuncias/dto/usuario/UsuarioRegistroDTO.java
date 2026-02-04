@@ -1,4 +1,4 @@
-package com.registro.denuncias.dto;
+package com.registro.denuncias.dto.usuario;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,9 +1,9 @@
 package com.registro.denuncias.controller;
 
-import com.registro.denuncias.dto.LoginResponseDTO;
-import com.registro.denuncias.dto.UsuarioLoginDTO;
-import com.registro.denuncias.dto.UsuarioRegistroDTO;
-import com.registro.denuncias.dto.UsuarioResponseDTO;
+import com.registro.denuncias.dto.login.LoginResponseDTO;
+import com.registro.denuncias.dto.login.UsuarioLoginDTO;
+import com.registro.denuncias.dto.usuario.UsuarioRegistroDTO;
+import com.registro.denuncias.dto.usuario.UsuarioResponseDTO;
 import com.registro.denuncias.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

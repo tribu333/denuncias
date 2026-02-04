@@ -1,7 +1,7 @@
 package com.registro.denuncias.service;
 
-import com.registro.denuncias.dto.ComplaintRequestDTO;
-import com.registro.denuncias.dto.ComplaintResponseDTO;
+import com.registro.denuncias.dto.complain.ComplaintRequestDTO;
+import com.registro.denuncias.dto.complain.ComplaintResponseDTO;
 import com.registro.denuncias.model.Complaint;
 import com.registro.denuncias.repository.ComplaintRepository;
 import lombok.RequiredArgsConstructor;

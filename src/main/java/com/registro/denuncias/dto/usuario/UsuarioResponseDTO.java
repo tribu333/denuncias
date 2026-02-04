@@ -1,4 +1,4 @@
-package com.registro.denuncias.dto;
+package com.registro.denuncias.dto.usuario;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.registro.denuncias.model.RolUsuario;

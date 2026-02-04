@@ -1,4 +1,4 @@
-package com.registro.denuncias.dto;
+package com.registro.denuncias.dto.login;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

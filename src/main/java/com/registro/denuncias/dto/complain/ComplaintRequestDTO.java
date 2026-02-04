@@ -1,4 +1,4 @@
-package com.registro.denuncias.dto;
+package com.registro.denuncias.dto.complain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;

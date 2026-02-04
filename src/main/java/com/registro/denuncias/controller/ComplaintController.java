@@ -1,8 +1,8 @@
 package com.registro.denuncias.controller;
 
 
-import com.registro.denuncias.dto.ComplaintRequestDTO;
-import com.registro.denuncias.dto.ComplaintResponseDTO;
+import com.registro.denuncias.dto.complain.ComplaintRequestDTO;
+import com.registro.denuncias.dto.complain.ComplaintResponseDTO;
 import com.registro.denuncias.service.ComplaintService;
 
 import io.swagger.v3.oas.annotations.Operation;
