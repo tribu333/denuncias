@@ -32,6 +32,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Permite acceso público a estos endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/complaints/**").permitAll()
+                .requestMatchers("/api/imagenes/upload/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll()

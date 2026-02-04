@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/api/imagenes")
 @RequiredArgsConstructor
@@ -13,7 +13,7 @@ public class ImagenController {
     
     private final ImagenService imagenService;
     
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImagen(
             @RequestParam("file") MultipartFile file,
             @RequestParam("denunciaId") Long denunciaId) {
