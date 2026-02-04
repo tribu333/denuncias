@@ -56,7 +56,9 @@ public class Complaint {
 
     @Column(name = "worker_position")
     private String workerPosition;
-
+    @Column(name = "status", nullable = false)
+    @Builder.Default
+    private String status = "PENDIENTE"; // PENDING, UNDER_REVIEW, RESOLVED, DISMISSED
     // Timestamps
     @CreationTimestamp
     @Column(name = "submitted_at", updatable = false)
@@ -87,6 +89,14 @@ public class Complaint {
             this.complaintCode = "CMP-" + randomNum;
         }
     }
+     // Métodos helper para status
+    public boolean isPending() {
+        return "PENDIENTE".equalsIgnoreCase(status);
+    }
+    
+    public boolean isResolved() {
+        return "RESUELTO".equalsIgnoreCase(status);
+    }
 }
 
 // Enum for complaint status
@@ -98,10 +108,3 @@ public class Complaint {
     DISMISSED
 } */
 
-// Enum for complaint priority
-/* enum ComplaintPriority {
-    LOW,
-    MEDIUM,
-    HIGH,
-    URGENT
-} */

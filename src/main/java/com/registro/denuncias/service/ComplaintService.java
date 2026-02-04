@@ -2,10 +2,18 @@ package com.registro.denuncias.service;
 
 import com.registro.denuncias.dto.complain.ComplaintRequestDTO;
 import com.registro.denuncias.dto.complain.ComplaintResponseDTO;
+import com.registro.denuncias.dto.complain.ComplaintStatsDTO;
 import com.registro.denuncias.model.Complaint;
 import com.registro.denuncias.repository.ComplaintRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +56,66 @@ public class ComplaintService {
         
         return mapToResponseDTO(complaint);
     }
+     // Obtener todas las denuncias (sin paginación)
+    public List<ComplaintResponseDTO> getAllComplaints() {
+        log.info("Fetching all complaints");
+        
+        List<Complaint> complaints = complaintRepository.findAll();
+        
+        return complaints.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
     
+    // Obtener denuncias con paginación
+    public Page<ComplaintResponseDTO> getComplaintsPage(Pageable pageable) {
+        log.info("Fetching complaints with pagination - page: {}, size: {}", 
+                pageable.getPageNumber(), pageable.getPageSize());
+        
+        Page<Complaint> complaintsPage = complaintRepository.findAll(pageable);
+        
+        return complaintsPage.map(this::mapToResponseDTO);
+    }
+    
+    // Obtener denuncias con filtros opcionales
+    public Page<ComplaintResponseDTO> getComplaintsWithFilters(
+            String department, 
+            String complaintType, 
+            Pageable pageable) {
+        
+        log.info("Fetching complaints with filters - department: {}, type: {}", 
+                department, complaintType);
+        
+        Page<Complaint> complaintsPage;
+        
+        if (department != null && complaintType != null) {
+            complaintsPage = complaintRepository
+                    .findByDepartmentAndComplaintType(department, complaintType, pageable);
+        } else if (department != null) {
+            complaintsPage = complaintRepository
+                    .findByDepartment(department, pageable);
+        } else if (complaintType != null) {
+            complaintsPage = complaintRepository
+                    .findByComplaintType(complaintType, pageable);
+        } else {
+            complaintsPage = complaintRepository.findAll(pageable);
+        }
+        
+        return complaintsPage.map(this::mapToResponseDTO);
+    }
+    
+    // Obtener estadísticas
+    public ComplaintStatsDTO getComplaintStats() {
+        long total = complaintRepository.count();
+        long pending = complaintRepository.countByStatus("PENDING");
+        long resolved = complaintRepository.countByStatus("RESOLVED");
+        
+        return ComplaintStatsDTO.builder()
+                .total(total)
+                .pending(pending)
+                .resolved(resolved)
+                .build();
+    }
     // Simple mapper method (no MapStruct needed for now)
     private ComplaintResponseDTO mapToResponseDTO(Complaint complaint) {
         return ComplaintResponseDTO.builder()
