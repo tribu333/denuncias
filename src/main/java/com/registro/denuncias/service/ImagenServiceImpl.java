@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,10 +55,22 @@ public class ImagenServiceImpl implements ImagenService {
         
         // Validar tipo de contenido
         String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
+        List<String> allowedMimeTypes = Arrays.asList(
+        "image/jpeg",  // JPG y JPEG
+            "image/jpg",   // JPG
+            "image/png"    // PNG
+        );
+        
+        if (contentType == null || !allowedMimeTypes.contains(contentType.toLowerCase())) {
+            throw new RuntimeException(
+                "Formato de archivo no permitido. Solo se aceptan: JPG, JPEG, PNG. " +
+                "Tipo recibido: " + contentType
+            );
+        }
+        /* if (contentType == null || !contentType.startsWith("image/")) {
             throw new RuntimeException("Solo se permiten archivos de imagen (PNG, JPG, JPEG)");
         }
-        
+         */
         // Validar tamaño (opcional, ya está en application.properties pero validamos por seguridad)
         long maxSize = 5 * 1024 * 1024; // 5MB
         if (file.getSize() > maxSize) {
@@ -187,9 +200,17 @@ public class ImagenServiceImpl implements ImagenService {
                 
                 // Validar tipo de contenido
                 String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    System.err.println("Archivo no es imagen: " + file.getOriginalFilename());
-                    continue;
+                List<String> allowedMimeTypes = Arrays.asList(
+                "image/jpeg",  // JPG y JPEG
+                    "image/jpg",   // JPG
+                    "image/png"    // PNG
+                );
+                
+                if (contentType == null || !allowedMimeTypes.contains(contentType.toLowerCase())) {
+                    throw new RuntimeException(
+                        "Formato de archivo no permitido. Solo se aceptan: JPG, JPEG, PNG. " +
+                        "Tipo recibido: " + contentType
+                    );
                 }
                 
                 // Validar tamaño

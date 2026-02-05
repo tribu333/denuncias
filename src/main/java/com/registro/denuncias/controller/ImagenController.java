@@ -1,5 +1,6 @@
 package com.registro.denuncias.controller;
 
+import com.registro.denuncias.dto.image.ImagenResponseDTO;
 import com.registro.denuncias.model.Imagen;
 import com.registro.denuncias.service.FileStorageService;
 import com.registro.denuncias.service.ImagenServiceImpl;
@@ -16,9 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/api/imagenes")
@@ -105,6 +110,68 @@ public class ImagenController {
                     
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @PostMapping(value="/subir-multiples", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> subirImagenesMultiples(
+            @RequestPart("files") MultipartFile[] files,
+            @RequestParam("idComplaint") Long idComplaint) {
+        try {
+            if (files == null || files.length == 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "No se enviaron archivos");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            List<ImagenResponseDTO> imagenesSubidas = 
+                imagenService.subirImagenesMasivas(files, idComplaint);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Se subieron " + imagenesSubidas.size() + " imágenes exitosamente");
+            response.put("imagenes", imagenesSubidas);
+            response.put("total", imagenesSubidas.size());
+            response.put("intentadas", files.length);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+/**
+     * Descarga una imagen por ID (alternativo)
+     * GET /api/imagenes/{id}/descargar
+     */
+    @Operation(
+        summary = "Descargar imagen por ID",
+        description = "Recupera una imagen utilizando su ID único en la base de datos."
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Imagen recuperada exitosamente",
+            content = {
+                @Content(mediaType = "image/jpeg"),
+                @Content(mediaType = "image/png"),
+                @Content(mediaType = "image/gif")
+            }
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Imagen no encontrada"
+        )
+    })
+    @GetMapping("/{id}/descargar")
+    public ResponseEntity<Resource> descargarImagenPorId(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        try {
+            Imagen imagen = imagenService.findEntityById(id);
+            return descargarImagen(imagen.getNombreArchivo(), request);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

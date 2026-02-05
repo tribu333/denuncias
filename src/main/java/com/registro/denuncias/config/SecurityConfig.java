@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 .requestMatchers( "/api/imagenes/descargar/**").permitAll()
                 .requestMatchers( "/api/imagenes/denuncia/**").permitAll()
+                .requestMatchers( "/api/imagenes/subir-multiples/**").permitAll()
                 // Todas las demás rutas requieren autenticación
                 .anyRequest().authenticated()
             )
