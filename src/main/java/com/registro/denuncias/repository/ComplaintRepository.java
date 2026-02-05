@@ -20,7 +20,8 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     
     // Métodos para filtros
     Page<Complaint> findByDepartment(String department, Pageable pageable);
-    
+        // Búsqueda por estado
+    Page<Complaint> findByStatus(String status, Pageable pageable);
     Page<Complaint> findByComplaintType(String complaintType, Pageable pageable);
     
     Page<Complaint> findByDepartmentAndComplaintType(String department, String complaintType, Pageable pageable);
@@ -58,7 +59,7 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
             Pageable pageable);
 
            // Búsqueda por código de denuncia (parcial)
-    List<Complaint> findByComplaintCodeContainingIgnoreCase(String complaintCode);
+     Page<Complaint> findByComplaintCodeContainingIgnoreCase(String complaintCode, Pageable pageable);
         // Búsqueda combinada por código y nombre
     List<Complaint> findByComplaintCodeContainingIgnoreCaseOrWorkerFullNameContainingIgnoreCase(
             String complaintCode, String workerName);
@@ -78,4 +79,5 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
            "LOWER(c.complaintCode) LIKE LOWER(CONCAT(:prefix, '%')) " +
            "ORDER BY c.complaintCode")
     List<String> findComplaintCodesStartingWith(@Param("prefix") String prefix, Pageable pageable);
+    
 }

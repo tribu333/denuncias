@@ -3,11 +3,13 @@ package com.registro.denuncias.service;
 import com.registro.denuncias.dto.complain.ComplaintRequestDTO;
 import com.registro.denuncias.dto.complain.ComplaintResponseDTO;
 import com.registro.denuncias.dto.complain.ComplaintStatsDTO;
+import com.registro.denuncias.dto.complain.SearchResultDTO;
 import com.registro.denuncias.model.Complaint;
 import com.registro.denuncias.repository.ComplaintRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -133,4 +135,109 @@ public class ComplaintService {
                 .updatedAt(complaint.getUpdatedAt())
                 .build();
     }
+        private SearchResultDTO mapToSearchResultDTO(Complaint complaint) {
+        return SearchResultDTO.builder()
+                .id(complaint.getId())
+                .complaintCode(complaint.getComplaintCode())
+                .workerFullName(complaint.getWorkerFullName())
+                .department(complaint.getDepartment())
+                .complaintType(complaint.getComplaintType())
+                .status(complaint.getStatus())
+                .incidentDate(complaint.getIncidentDate())
+                .build();
+    }
+        // ========== BÚSQUEDAS EN TIEMPO REAL ==========
+    
+    /**
+     * Búsqueda general por término (código o nombre)
+     */
+    public List<SearchResultDTO> searchRealTime(String searchTerm) {
+        log.info("Real-time search for: {}", searchTerm);
+        
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return List.of();
+        }
+        
+        // Limitar resultados para respuesta rápida
+        Pageable limit = PageRequest.of(0, 10);
+        
+        List<Complaint> complaints = complaintRepository.searchByCodeOrWorkerName(searchTerm.trim());
+        
+        return complaints.stream()
+                .limit(10) // Máximo 10 resultados para tiempo real
+                .map(this::mapToSearchResultDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Autocompletado para nombres de trabajadores
+     */
+    public List<String> autocompleteWorkerNames(String prefix) {
+        log.info("Autocomplete worker names starting with: {}", prefix);
+        
+        if (prefix == null || prefix.trim().isEmpty()) {
+            return List.of();
+        }
+        
+        Pageable limit = PageRequest.of(0, 10);
+        return complaintRepository.findWorkerNamesStartingWith(prefix.trim(), limit);
+    }
+    
+    /**
+     * Autocompletado para códigos de denuncia
+     */
+    public List<String> autocompleteComplaintCodes(String prefix) {
+        log.info("Autocomplete complaint codes starting with: {}", prefix);
+        
+        if (prefix == null || prefix.trim().isEmpty()) {
+            return List.of();
+        }
+        
+        Pageable limit = PageRequest.of(0, 10);
+        return complaintRepository.findComplaintCodesStartingWith(prefix.trim(), limit);
+    }
+    
+    /**
+     * Búsqueda específica por nombre de trabajador
+     */
+    public Page<ComplaintResponseDTO> searchByWorkerName(String workerName, Pageable pageable) {
+        log.info("Searching complaints by worker name: {}", workerName);
+        
+        Page<Complaint> complaints = complaintRepository
+                .findByWorkerFullNameContainingIgnoreCase(workerName, pageable);
+        
+        return complaints.map(this::mapToResponseDTO);
+    }
+    
+    /**
+     * Búsqueda específica por código de denuncia
+     */
+public Page<ComplaintResponseDTO> searchByComplaintCode(String complaintCode, Pageable pageable) {
+        log.info("Searching complaints by code: {}", complaintCode);
+        
+        // Usar el método con paginación que creamos en el repository
+        Page<Complaint> complaints = complaintRepository
+                .findByComplaintCodeContainingIgnoreCase(complaintCode, pageable);
+        
+        return complaints.map(this::mapToResponseDTO);
+    }
+    
+    /**
+     * Búsqueda avanzada con múltiples filtros
+     */
+    public Page<ComplaintResponseDTO> advancedSearch(
+            String department,
+            String complaintType,
+            String workerName,
+            Pageable pageable) {
+        
+        log.info("Advanced search - department: {}, type: {}, worker: {}, code: {}", 
+                department, complaintType, workerName);
+        
+        Page<Complaint> complaints = complaintRepository.searchComplaints(
+                department, complaintType, workerName, pageable);
+        
+        return complaints.map(this::mapToResponseDTO);
+    }
+    
 }

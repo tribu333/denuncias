@@ -1,7 +1,6 @@
 package com.registro.denuncias.controller;
 
-import com.registro.denuncias.dto.complain.ComplaintRequestDTO;
-import com.registro.denuncias.dto.complain.ComplaintResponseDTO;
+import com.registro.denuncias.dto.complain.*;
 import com.registro.denuncias.service.ComplaintService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +26,8 @@ public class ComplaintController {
     
     private final ComplaintService complaintService;
     
-    // ========== CREAR DENUNCIA ==========
+    // ========== ENDPOINTS EXISTENTES ==========
+    
     @PostMapping
     @Operation(summary = "Crear una nueva denuncia")
     public ResponseEntity<ComplaintResponseDTO> createComplaint(
@@ -37,7 +37,6 @@ public class ComplaintController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     
-    // ========== OBTENER POR CÓDIGO ==========
     @GetMapping("/{complaintCode}")
     @Operation(summary = "Obtener denuncia por código")
     public ResponseEntity<ComplaintResponseDTO> getComplaintByCode(
@@ -47,7 +46,6 @@ public class ComplaintController {
         return ResponseEntity.ok(response);
     }
     
-    // ========== OBTENER TODAS (sin paginación) ==========
     @GetMapping("/all")
     @Operation(summary = "Obtener todas las denuncias (sin paginación)")
     public ResponseEntity<List<ComplaintResponseDTO>> getAllComplaints() {
@@ -56,7 +54,6 @@ public class ComplaintController {
         return ResponseEntity.ok(complaints);
     }
     
-    // ========== OBTENER CON PAGINACIÓN ==========
     @GetMapping
     @Operation(summary = "Obtener denuncias con paginación")
     public ResponseEntity<Page<ComplaintResponseDTO>> getComplaintsPage(
@@ -83,7 +80,122 @@ public class ComplaintController {
         return ResponseEntity.ok(complaintsPage);
     }
     
-    // ========== OBTENER CON FILTROS ==========
+    // ========== BÚSQUEDA EN TIEMPO REAL ==========
+    
+    @GetMapping("/search/real-time")
+    @Operation(summary = "Búsqueda en tiempo real por código o nombre")
+    public ResponseEntity<List<SearchResultDTO>> searchRealTime(
+            @Parameter(description = "Término de búsqueda (código o nombre)", required = true)
+            @RequestParam String q) {
+        
+        List<SearchResultDTO> results = complaintService.searchRealTime(q);
+        return ResponseEntity.ok(results);
+    }
+    
+    @GetMapping("/autocomplete/worker-names")
+    @Operation(summary = "Autocompletado de nombres de trabajadores")
+    public ResponseEntity<List<String>> autocompleteWorkerNames(
+            @Parameter(description = "Prefijo para autocompletado", required = true)
+            @RequestParam String prefix) {
+        
+        List<String> suggestions = complaintService.autocompleteWorkerNames(prefix);
+        return ResponseEntity.ok(suggestions);
+    }
+    
+    @GetMapping("/autocomplete/complaint-codes")
+    @Operation(summary = "Autocompletado de códigos de denuncia")
+    public ResponseEntity<List<String>> autocompleteComplaintCodes(
+            @Parameter(description = "Prefijo para autocompletado", required = true)
+            @RequestParam String prefix) {
+        
+        List<String> suggestions = complaintService.autocompleteComplaintCodes(prefix);
+        return ResponseEntity.ok(suggestions);
+    }
+    
+    // ========== BÚSQUEDAS ESPECÍFICAS ==========
+    
+    @GetMapping("/search/by-worker")
+    @Operation(summary = "Buscar denuncias por nombre de trabajador")
+    public ResponseEntity<Page<ComplaintResponseDTO>> searchByWorkerName(
+            @Parameter(description = "Nombre del trabajador", required = true)
+            @RequestParam String name,
+            
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
+        Page<ComplaintResponseDTO> result = complaintService.searchByWorkerName(name, pageable);
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/search/by-code")
+    @Operation(summary = "Buscar denuncias por código")
+    public ResponseEntity<Page<ComplaintResponseDTO>> searchByComplaintCode(
+            @Parameter(description = "Código de denuncia", required = true)
+            @RequestParam String code,
+            
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
+        Page<ComplaintResponseDTO> result = complaintService.searchByComplaintCode(code, pageable);
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    // ========== BÚSQUEDA AVANZADA ==========
+    
+    @PostMapping("/search/advanced")
+    @Operation(summary = "Búsqueda avanzada con múltiples filtros")
+    public ResponseEntity<Page<ComplaintResponseDTO>> advancedSearch(
+            @RequestBody AdvancedSearchDTO searchDTO,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
+        
+        Page<ComplaintResponseDTO> result = complaintService.advancedSearch(
+                searchDTO.getDepartment(),
+                searchDTO.getComplaintType(),
+                searchDTO.getWorkerName(),
+
+                pageable);
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/search/advanced/quick")
+    @Operation(summary = "Búsqueda avanzada rápida (query params)")
+    public ResponseEntity<Page<ComplaintResponseDTO>> advancedSearchQuick(
+            @Parameter(description = "Departamento")
+            @RequestParam(required = false) String department,
+            
+            @Parameter(description = "Tipo de denuncia")
+            @RequestParam(required = false) String complaintType,
+            
+            @Parameter(description = "Nombre del trabajador")
+            @RequestParam(required = false) String workerName,
+            
+            @Parameter(description = "Código de denuncia")
+            @RequestParam(required = false) String complaintCode,
+            
+            @Parameter(description = "Estado")
+            @RequestParam(required = false) String status,
+            
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
+        
+        Page<ComplaintResponseDTO> result = complaintService.advancedSearch(
+                department, complaintType, workerName,  pageable);
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    // ========== ENDPOINTS EXISTENTES (actualizados) ==========
+    
     @GetMapping("/filter")
     @Operation(summary = "Obtener denuncias con filtros")
     public ResponseEntity<Page<ComplaintResponseDTO>> getComplaintsWithFilters(
@@ -101,19 +213,12 @@ public class ComplaintController {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
         
-        Page<ComplaintResponseDTO> complaintsPage;
+        Page<ComplaintResponseDTO> result = complaintService.advancedSearch(
+                department, complaintType, workerName, pageable);
         
-        if (department != null || complaintType != null || workerName != null) {
-            // Para búsqueda avanzada necesitarías un método adicional en el servicio
-            complaintsPage = complaintService.getComplaintsWithFilters(department, complaintType, pageable);
-        } else {
-            complaintsPage = complaintService.getComplaintsPage(pageable);
-        }
-        
-        return ResponseEntity.ok(complaintsPage);
+        return ResponseEntity.ok(result);
     }
     
-    // ========== ESTADÍSTICAS ==========
     @GetMapping("/stats")
     @Operation(summary = "Obtener estadísticas de denuncias")
     public ResponseEntity<Map<String, Object>> getComplaintStats() {
@@ -128,28 +233,6 @@ public class ComplaintController {
         return ResponseEntity.ok(response);
     }
     
-    // ========== BUSCAR POR NOMBRE DE TRABAJADOR ==========
-    @GetMapping("/search/worker")
-    @Operation(summary = "Buscar denuncias por nombre de trabajador")
-    public ResponseEntity<Page<ComplaintResponseDTO>> searchByWorkerName(
-            @Parameter(description = "Nombre del trabajador", required = true)
-            @RequestParam String name,
-            
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size);
-        
-        // Necesitarías implementar este método en el servicio
-        // Page<ComplaintResponseDTO> result = complaintService.searchByWorkerName(name, pageable);
-        
-        // Temporalmente devuelve todas
-        Page<ComplaintResponseDTO> result = complaintService.getComplaintsPage(pageable);
-        
-        return ResponseEntity.ok(result);
-    }
-    
-    // ========== OBTENER POR DEPARTAMENTO ==========
     @GetMapping("/department/{department}")
     @Operation(summary = "Obtener denuncias por departamento")
     public ResponseEntity<Page<ComplaintResponseDTO>> getByDepartment(
@@ -159,8 +242,8 @@ public class ComplaintController {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
         
-        // Implementar en servicio
-        Page<ComplaintResponseDTO> result = complaintService.getComplaintsPage(pageable);
+        Page<ComplaintResponseDTO> result = complaintService.advancedSearch(
+                department, null, null, pageable);
         
         return ResponseEntity.ok(result);
     }
