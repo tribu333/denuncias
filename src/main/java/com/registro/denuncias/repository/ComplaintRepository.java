@@ -56,4 +56,26 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
             @Param("complaintType") String complaintType,
             @Param("workerName") String workerName,
             Pageable pageable);
+
+           // Búsqueda por código de denuncia (parcial)
+    List<Complaint> findByComplaintCodeContainingIgnoreCase(String complaintCode);
+        // Búsqueda combinada por código y nombre
+    List<Complaint> findByComplaintCodeContainingIgnoreCaseOrWorkerFullNameContainingIgnoreCase(
+            String complaintCode, String workerName);
+                // Búsqueda avanzada con JPQL para autocompletado
+    @Query("SELECT c FROM Complaint c WHERE " +
+           "LOWER(c.complaintCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(c.workerFullName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Complaint> searchByCodeOrWorkerName(@Param("searchTerm") String searchTerm);
+    // Búsqueda para autocompletado (limitado a 10 resultados)
+    @Query("SELECT DISTINCT c.workerFullName FROM Complaint c WHERE " +
+           "LOWER(c.workerFullName) LIKE LOWER(CONCAT(:prefix, '%')) " +
+           "ORDER BY c.workerFullName")
+    List<String> findWorkerNamesStartingWith(@Param("prefix") String prefix, Pageable pageable);
+
+        // Búsqueda para autocompletado de códigos
+    @Query("SELECT DISTINCT c.complaintCode FROM Complaint c WHERE " +
+           "LOWER(c.complaintCode) LIKE LOWER(CONCAT(:prefix, '%')) " +
+           "ORDER BY c.complaintCode")
+    List<String> findComplaintCodesStartingWith(@Param("prefix") String prefix, Pageable pageable);
 }
