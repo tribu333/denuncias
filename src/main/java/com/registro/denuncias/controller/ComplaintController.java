@@ -28,7 +28,7 @@ public class ComplaintController {
     
     // ========== ENDPOINTS EXISTENTES ==========
     
-    @PostMapping
+    @PostMapping("/nueva")
     @Operation(summary = "Crear una nueva denuncia")
     public ResponseEntity<ComplaintResponseDTO> createComplaint(
             @Valid @RequestBody ComplaintRequestDTO requestDTO) {
@@ -54,7 +54,7 @@ public class ComplaintController {
         return ResponseEntity.ok(complaints);
     }
     
-    @GetMapping
+    @GetMapping("/paginacion")
     @Operation(summary = "Obtener denuncias con paginación")
     public ResponseEntity<Page<ComplaintResponseDTO>> getComplaintsPage(
             @Parameter(description = "Número de página (0-based)", example = "0")
@@ -196,7 +196,7 @@ public class ComplaintController {
     
     // ========== ENDPOINTS EXISTENTES (actualizados) ==========
     
-    @GetMapping("/filter")
+    @GetMapping("/filterDepartment")
     @Operation(summary = "Obtener denuncias con filtros")
     public ResponseEntity<Page<ComplaintResponseDTO>> getComplaintsWithFilters(
             @Parameter(description = "Departamento")

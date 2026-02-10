@@ -38,7 +38,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
     
-    // Swagger/OpenAPI (opcional)
+    // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
     // JWT
